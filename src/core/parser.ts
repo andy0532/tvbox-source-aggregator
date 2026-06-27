@@ -50,9 +50,12 @@ function normalizeSites(
       const normalized: TVBoxSite = {
         ...site,
         name: site.name || site.key,
-        searchable: site.searchable ?? 1,
-        quickSearch: site.quickSearch ?? 1,
-        filterable: site.filterable ?? 1,
+        type: site.type != null ? Number(site.type) : site.type,
+        searchable: coerceNumField(site.searchable, 1),
+        quickSearch: coerceNumField(site.quickSearch, 1),
+        filterable: coerceNumField(site.filterable, 1),
+        changeable: coerceNumField(site.changeable, undefined),
+        playerType: coerceNumField(site.playerType, undefined),
       };
 
       // type 0/1: 规范化 api URL
@@ -82,6 +85,16 @@ function normalizeSites(
 
       return normalized;
     });
+}
+
+/**
+ * 将可能是字符串的数值字段转成数字
+ * 源 JSON 中常用 "0"/"1" 字符串表示布尔/数值，TVBox 客户端要求 number 类型
+ */
+function coerceNumField(value: unknown, fallback: number | undefined): number | undefined {
+  if (value == null || value === '') return fallback;
+  const n = Number(value);
+  return isNaN(n) ? (fallback ?? (value as unknown as undefined)) : n;
 }
 
 /**

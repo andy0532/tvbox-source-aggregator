@@ -4,12 +4,13 @@ import { createApp } from './routes';
 import { KVStorage } from './storage/kv';
 import { runAggregation } from './aggregator';
 import { DEFAULT_SPEED_TIMEOUT_MS, DEFAULT_SITE_TIMEOUT_MS, DEFAULT_FETCH_TIMEOUT_MS, KV_CRON_INTERVAL, KV_LAST_UPDATE, DEFAULT_CRON_INTERVAL } from './core/config';
-import type { AppConfig } from './core/types';
+import type { AppConfig, User } from './core/types';
 
 interface CfEnv {
   KV: KVNamespace;
   REFRESH_TOKEN?: string;
   ADMIN_TOKEN?: string;
+  USERS?: string;
   SPEED_TIMEOUT_MS?: string;
   SITE_TIMEOUT_MS?: string;
   FETCH_TIMEOUT_MS?: string;
@@ -17,8 +18,13 @@ interface CfEnv {
 }
 
 function buildConfig(env: CfEnv): AppConfig {
+  let users: User[] | undefined;
+  if (env.USERS) {
+    try { users = JSON.parse(env.USERS); } catch { users = undefined; }
+  }
   return {
     adminToken: env.ADMIN_TOKEN,
+    users,
     refreshToken: env.REFRESH_TOKEN,
     speedTimeoutMs: parseInt(env.SPEED_TIMEOUT_MS || '') || DEFAULT_SPEED_TIMEOUT_MS,
     siteTimeoutMs: parseInt(env.SITE_TIMEOUT_MS || '') || DEFAULT_SITE_TIMEOUT_MS,

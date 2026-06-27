@@ -149,9 +149,16 @@ export interface SourceHealthRecord {
   lastSpeedMs?: number;
 }
 
+// 用户认证
+export interface User {
+  username: string;
+  password: string;
+}
+
 // 平台无关的应用配置
 export interface AppConfig {
   adminToken?: string;
+  users?: User[];
   refreshToken?: string;
   speedTimeoutMs: number;
   siteTimeoutMs: number;

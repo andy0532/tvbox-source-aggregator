@@ -250,14 +250,15 @@ ${sharedStyles}
 </head>
 <body style="opacity:0">
 
-<!-- Login -->
+<!-- Login with username/password -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <h2 data-i18n="loginTitle">Config Editor</h2>
-    <p data-i18n="loginSubtitle">Enter admin token</p>
-    <div class="error-msg" id="loginError" data-i18n="invalidToken">Invalid token</div>
-    <input type="password" id="tokenInput" data-i18n-placeholder="tokenPh" placeholder="Admin Token" autofocus>
-    <button class="btn" style="width:100%" data-i18n="login" onclick="auth.doLogin()">Login</button>
+    <p data-i18n="loginSubtitle">Enter your credentials</p>
+    <div class="error-msg" id="loginError" data-i18n="invalidToken">Invalid username or password</div>
+    <input type="text" id="loginUsername" placeholder="Username" data-i18n-placeholder="username" autocomplete="username" style="margin-bottom:8px">
+    <input type="password" id="loginPassword" placeholder="Password" data-i18n-placeholder="password" autocomplete="current-password">
+    <button class="btn" style="width:100%;margin-top:12px" data-i18n="login" onclick="auth.doLogin()">Login</button>
   </div>
 </div>
 
@@ -391,7 +392,7 @@ let TOKEN = '';
 let DATA = null;
 let CURRENT_TAB = 'sites';
 
-const auth = initAuth('tokenInput', 'loginError', 'loginOverlay', 'mainContent', '/admin/config-data', function() {
+const auth = initLogin('loginUsername', 'loginPassword', 'loginError', 'loginOverlay', 'mainContent', '/admin/config-data', function() {
   TOKEN = auth.getToken();
   loadData();
 });

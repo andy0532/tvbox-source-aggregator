@@ -194,6 +194,32 @@ export function createApp(deps: AppDeps): Hono {
     return c.html(adminHtml);
   });
 
+  // ─── 用户名+密码登录 ────────────────────────────────────
+  app.post('/admin/login', async (c) => {
+    let body: { username?: string; password?: string };
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json({ error: 'Invalid JSON' }, 400);
+    }
+    const { username, password } = body;
+    if (!username || !password) {
+      return c.json({ error: 'Username and password required' }, 400);
+    }
+    // 优先检查 users 列表
+    if (config.users && config.users.length > 0) {
+      const match = config.users.find(u => u.username === username && u.password === password);
+      if (match && config.adminToken) {
+        return c.json({ token: config.adminToken });
+      }
+    }
+    // 向后兼容：没有 users 时，允许直接用 adminToken 作为密码
+    if (!config.users && config.adminToken && password === config.adminToken) {
+      return c.json({ token: config.adminToken });
+    }
+    return c.json({ error: 'Unauthorized' }, 401);
+  });
+
   // ─── Admin API（需鉴权）────────────────────────────────
   app.get('/admin/sources', async (c) => {
     if (!verifyAdmin(c.req.raw, config)) {

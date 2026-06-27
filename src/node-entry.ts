@@ -19,7 +19,7 @@ import {
   CHANNEL_PROBE_CRON,
 } from './core/config';
 import type { Storage } from './storage/interface';
-import type { AppConfig } from './core/types';
+import type { AppConfig, User } from './core/types';
 
 // 加载 .env
 dotenv.config();
@@ -66,8 +66,13 @@ async function buildConfig(port: number): Promise<AppConfig> {
   }
 
   const baseUrl = process.env.BASE_URL || `http://${lanIp || 'localhost'}:${port}`;
+  let users: User[] | undefined;
+  if (process.env.USERS) {
+    try { users = JSON.parse(process.env.USERS); } catch { users = undefined; }
+  }
   return {
     adminToken: process.env.ADMIN_TOKEN,
+    users,
     refreshToken: process.env.REFRESH_TOKEN,
     speedTimeoutMs: parseInt(process.env.SPEED_TIMEOUT_MS || '') || DEFAULT_SPEED_TIMEOUT_MS,
     siteTimeoutMs: parseInt(process.env.SITE_TIMEOUT_MS || '') || DEFAULT_SITE_TIMEOUT_MS,

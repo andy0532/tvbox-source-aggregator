@@ -102,6 +102,75 @@ function initAuth(tokenInputId, errorId, overlayId, contentId, verifyUrl, onSucc
   return { doLogin, authFetch, getToken };
 }
 
+// 用户名+密码登录（替代单 token 登录）
+function initLogin(usernameId, passwordId, errorId, overlayId, contentId, verifyUrl, onSuccess) {
+  let token = '';
+  const usernameInput = $(usernameId);
+  const passwordInput = $(passwordId);
+  const overlay = $(overlayId);
+  const content = $(contentId);
+  const errorEl = $(errorId);
+
+  function getToken() { return token; }
+
+  function authFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    return fetch(url, opts);
+  }
+
+  function doLogin() {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!username || !password) return;
+    fetch('/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    }).then(r => {
+      if (r.ok) return r.json();
+      throw new Error('Login failed');
+    }).then(data => {
+      token = data.token;
+      if (!token) throw new Error('No token returned');
+      sessionStorage.setItem('admin_token', token);
+      overlay.style.display = 'none';
+      content.style.display = 'block';
+      onSuccess();
+    }).catch(() => {
+      errorEl.style.display = 'block';
+      passwordInput.value = '';
+      passwordInput.focus();
+    });
+  }
+
+  function onKeydown(e) {
+    if (e.key === 'Enter') {
+      if (e.target === usernameInput) { passwordInput.focus(); return; }
+      if (e.target === passwordInput) { doLogin(); return; }
+    }
+  }
+  usernameInput.addEventListener('keydown', onKeydown);
+  passwordInput.addEventListener('keydown', onKeydown);
+
+  // Auto-login from session
+  const saved = sessionStorage.getItem('admin_token');
+  if (saved) {
+    token = saved;
+    fetch(verifyUrl, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(r => {
+      if (r.ok) {
+        overlay.style.display = 'none';
+        content.style.display = 'block';
+        onSuccess();
+      }
+    });
+  }
+
+  return { doLogin, authFetch, getToken };
+}
+
 function toggleCollapsible(toggleEl) {
   toggleEl.classList.toggle('open');
   const body = toggleEl.nextElementSibling;

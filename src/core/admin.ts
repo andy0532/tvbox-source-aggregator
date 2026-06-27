@@ -252,14 +252,15 @@ ${sharedStyles}
 </head>
 <body style="opacity:0">
 
-<!-- Login -->
+<!-- Login with username/password -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <h2 data-i18n="loginTitle">Admin Access</h2>
     <p data-i18n="loginSubtitle">TVBox Aggregator Management</p>
-    <div class="error-msg" id="loginError" data-i18n="invalidToken">Invalid token</div>
-    <input type="password" id="loginInput" placeholder="Enter admin token" data-i18n-placeholder="enterToken" autocomplete="off">
-    <button class="btn" style="width:100%" onclick="auth.doLogin()" data-i18n="login">Login</button>
+    <div class="error-msg" id="loginError" data-i18n="invalidToken">Invalid username or password</div>
+    <input type="text" id="loginUsername" placeholder="Username" data-i18n-placeholder="username" autocomplete="username" style="margin-bottom:8px">
+    <input type="password" id="loginPassword" placeholder="Password" data-i18n-placeholder="password" autocomplete="current-password">
+    <button class="btn" style="width:100%;margin-top:12px" onclick="auth.doLogin()" data-i18n="login">Login</button>
   </div>
 </div>
 
@@ -783,7 +784,7 @@ function doToggleLang() {
 }
 
 // --- Auth ---
-const auth = initAuth('loginInput', 'loginError', 'loginOverlay', 'mainContent', '/admin/sources', loadAll);
+const auth = initLogin('loginUsername', 'loginPassword', 'loginError', 'loginOverlay', 'mainContent', '/admin/sources', loadAll);
 
 // --- Tab switching ---
 function switchTab(tab) {

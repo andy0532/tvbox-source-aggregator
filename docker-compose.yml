@@ -1,6 +1,7 @@
 services:
   tvbox:
     build: .
+    network_mode: host
     ports:
       - "${PORT:-5678}:5678"
     volumes:
